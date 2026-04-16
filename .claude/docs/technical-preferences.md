@@ -1,35 +1,40 @@
 # Technical Preferences
 
-<!-- Populated by /setup-engine. Updated as the user makes decisions throughout development. -->
-<!-- All agents reference this file for project-specific standards and conventions. -->
-
 ## Engine & Language
 
-- **Engine**: [TO BE CONFIGURED — run /setup-engine]
-- **Language**: [TO BE CONFIGURED]
-- **Rendering**: [TO BE CONFIGURED]
-- **Physics**: [TO BE CONFIGURED]
+- **Engine**: Unity 2022.3.62f3
+- **Framework**: TEngine
+- **Language**: C#
+- **Rendering**: URP (Universal Render Pipeline)
+- **Physics**: Unity Physics (built-in)
+
+## Core Dependencies
+
+- **TEngine**: Modular game framework (resource, UI, event, procedure modules)
+- **YooAsset**: Resource management & asset bundle pipeline
+- **HybridCLR**: C# hot-update for all platforms
+- **UniTask**: Zero-GC async/await for Unity
+- **Luban**: Game configuration table generation
 
 ## Input & Platform
 
-<!-- Written by /setup-engine. Read by /ux-design, /ux-review, /test-setup, /team-ui, and /dev-story -->
-<!-- to scope interaction specs, test helpers, and implementation to the correct input methods. -->
+- **Target Platforms**: [TO BE CONFIGURED]
+- **Input Methods**: [TO BE CONFIGURED]
+- **Primary Input**: [TO BE CONFIGURED]
+- **Gamepad Support**: [TO BE CONFIGURED]
+- **Touch Support**: [TO BE CONFIGURED]
+- **Platform Notes**: [TO BE CONFIGURED]
 
-- **Target Platforms**: [TO BE CONFIGURED — e.g., PC, Console, Mobile, Web]
-- **Input Methods**: [TO BE CONFIGURED — e.g., Keyboard/Mouse, Gamepad, Touch, Mixed]
-- **Primary Input**: [TO BE CONFIGURED — the dominant input for this game]
-- **Gamepad Support**: [TO BE CONFIGURED — Full / Partial / None]
-- **Touch Support**: [TO BE CONFIGURED — Full / Partial / None]
-- **Platform Notes**: [TO BE CONFIGURED — any platform-specific UX constraints]
+## Naming Conventions (TEngine)
 
-## Naming Conventions
-
-- **Classes**: [TO BE CONFIGURED]
-- **Variables**: [TO BE CONFIGURED]
-- **Signals/Events**: [TO BE CONFIGURED]
-- **Files**: [TO BE CONFIGURED]
-- **Scenes/Prefabs**: [TO BE CONFIGURED]
-- **Constants**: [TO BE CONFIGURED]
+- **Classes**: PascalCase (e.g., `GameApp`, `UIPanelBase`)
+- **Variables**: camelCase for private, PascalCase for public/serialized
+- **Events**: PascalCase with `Event` suffix (e.g., `GameStartEvent`)
+- **Files**: PascalCase matching class name
+- **Scenes/Prefabs**: PascalCase (e.g., `GameLauncher`, `UIPanelLogin`)
+- **Constants**: PascalCase or UPPER_SNAKE_CASE
+- **UI Nodes**: Prefix convention (e.g., `btn_` for buttons, `img_` for images, `txt_` for text)
+- **Assemblies**: GameBase, GameProto, GameLogic (under HotFix)
 
 ## Performance Budgets
 
@@ -40,48 +45,48 @@
 
 ## Testing
 
-- **Framework**: [TO BE CONFIGURED]
+- **Framework**: Unity Test Framework (NUnit)
 - **Minimum Coverage**: [TO BE CONFIGURED]
-- **Required Tests**: Balance formulas, gameplay systems, networking (if applicable)
+- **Required Tests**: Balance formulas, gameplay systems, TEngine module integration
+- **CI**: `game-ci/unity-test-runner@v4` (GitHub Actions)
 
 ## Forbidden Patterns
 
-<!-- Add patterns that should never appear in this project's codebase -->
-- [None configured yet — add as architectural decisions are made]
+- No synchronous resource loading — use `UniTask` / `LoadAssetAsync`
+- No `MonoBehaviour` for game logic — use TEngine module system
+- No direct `GameObject.Find` / `FindObjectOfType` — use module references
+- No hardcoded gameplay values — use Luban config tables
+- No `PlayerPrefs` for game state — use proper save system
 
 ## Allowed Libraries / Addons
 
-<!-- Add approved third-party dependencies here -->
-- [None configured yet — add as dependencies are approved]
+- TEngine (core framework)
+- YooAsset (resource management)
+- HybridCLR (hot-update)
+- UniTask (async)
+- Luban (config generation)
+- Sirenix Odin Inspector (editor tooling, paid)
 
 ## Architecture Decisions Log
 
-<!-- Quick reference linking to full ADRs in docs/architecture/ -->
-- [No ADRs yet — use /architecture-decision to create one]
+- [ADR-001] TEngine adopted as base framework — Unity + HybridCLR + YooAsset + UniTask + Luban
 
 ## Engine Specialists
 
-<!-- Written by /setup-engine when engine is configured. -->
-<!-- Read by /code-review, /architecture-decision, /architecture-review, and team skills -->
-<!-- to know which specialist to spawn for engine-specific validation. -->
-
-- **Primary**: [TO BE CONFIGURED — run /setup-engine]
-- **Language/Code Specialist**: [TO BE CONFIGURED]
-- **Shader Specialist**: [TO BE CONFIGURED]
-- **UI Specialist**: [TO BE CONFIGURED]
-- **Additional Specialists**: [TO BE CONFIGURED]
-- **Routing Notes**: [TO BE CONFIGURED]
+- **Primary**: unity-specialist
+- **Language/Code Specialist**: unity-specialist (C#)
+- **Shader Specialist**: unity-shader-specialist
+- **UI Specialist**: unity-ui-specialist
+- **Addressables Specialist**: (covered by YooAsset in TEngine)
+- **Routing Notes**: Use `tengine-dev` skill for all TEngine-specific API questions
 
 ### File Extension Routing
 
-<!-- Skills use this table to select the right specialist per file type. -->
-<!-- If a row says [TO BE CONFIGURED], fall back to Primary for that file type. -->
-
 | File Extension / Type | Specialist to Spawn |
-|-----------------------|---------------------|
-| Game code (primary language) | [TO BE CONFIGURED] |
-| Shader / material files | [TO BE CONFIGURED] |
-| UI / screen files | [TO BE CONFIGURED] |
-| Scene / prefab / level files | [TO BE CONFIGURED] |
-| Native extension / plugin files | [TO BE CONFIGURED] |
+| --------------------- | ------------------- |
+| Game code (.cs) | unity-specialist + tengine-dev skill |
+| Shader / material (.shader, .mat) | unity-shader-specialist |
+| UI / screen files (.prefab, UGUI) | unity-ui-specialist + tengine-dev skill |
+| Scene / prefab files (.unity, .prefab) | unity-specialist |
+| Config tables (Luban .xml/.json) | luban-dev skill |
 | General architecture review | Primary |
