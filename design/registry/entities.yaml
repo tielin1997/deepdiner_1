@@ -37,7 +37,7 @@
 #   Each entry: name, status, source, referenced_by[], attributes{}, added, revised
 
 version: 1
-last_updated: ""
+last_updated: "2026-04-17"
 
 # ─── ENTITIES ────────────────────────────────────────────────────────────────
 # Named game-world objects: enemies, NPCs, characters, factions, bosses.
@@ -106,7 +106,281 @@ items: []
 #   output_range[min, max], added
 # Optional: expression (the actual formula), notes
 
-formulas: []
+formulas:
+  - name: effective_base_fee
+    status: active
+    source: design/gdd/restaurant-system.md
+    referenced_by:
+      - design/gdd/restaurant-system.md
+      - design/gdd/diner-system.md
+    variables:
+      - DinerBaseFee
+      - CookingLevelMultiplier
+      - SeatBaseFeeMod
+      - FacilityBaseFeeMod
+      - RelicBaseFeeMod
+    output_range: [0, 9999]
+    expression: "floor(DinerBaseFee * CookingLevelMultiplier * SeatBaseFeeMod * FacilityBaseFeeMod * RelicBaseFeeMod)"
+    notes: "Multiplier chain: base -> seat -> facility -> relic. Floor to int, min 0."
+    added: 2026-04-17
+    revised: ""
+
+  - name: effective_add_on_fee
+    status: active
+    source: design/gdd/restaurant-system.md
+    referenced_by:
+      - design/gdd/restaurant-system.md
+      - design/gdd/diner-system.md
+      - design/gdd/card-system.md
+    variables:
+      - CardFaceValue
+      - SeatAddOnMod
+      - FacilityAddOnMod
+      - RelicAddOnMod
+    output_range: [0, 9999]
+    expression: "floor(CardFaceValue * SeatAddOnMod * FacilityAddOnMod * RelicAddOnMod)"
+    notes: "Multiplier chain for add-on dish cost. Card system owns CardFaceValue."
+    added: 2026-04-17
+    revised: ""
+
+  - name: effective_diner_gold
+    status: active
+    source: design/gdd/restaurant-system.md
+    referenced_by:
+      - design/gdd/restaurant-system.md
+      - design/gdd/diner-system.md
+    variables:
+      - DinerBaseGold
+      - SeatGoldMod
+      - FacilityGoldMod
+      - RelicGoldMod
+    output_range: [0, 9999]
+    expression: "floor(DinerBaseGold * SeatGoldMod * FacilityGoldMod * RelicGoldMod)"
+    notes: "Diner system owns DinerBaseGold. Multiplier chain for effective gold."
+    added: 2026-04-17
+    revised: ""
+
+  - name: devour_chance
+    status: active
+    source: design/gdd/restaurant-system.md
+    referenced_by:
+      - design/gdd/restaurant-system.md
+    variables:
+      - SeatDevourChance
+      - FacilityDevourChance
+      - RelicDevourChance
+    output_range: [0.0, 1.0]
+    expression: "clamp(SeatDevourChance + FacilityDevourChance + RelicDevourChance, 0.0, 1.0)"
+    notes: "Additive stacking for probabilities. Clamp to 1.0 max."
+    added: 2026-04-17
+    revised: ""
+
+  - name: dine_and_dash_chance
+    status: active
+    source: design/gdd/restaurant-system.md
+    referenced_by:
+      - design/gdd/restaurant-system.md
+    variables:
+      - SeatDineAndDashChance
+      - FacilityDineAndDashChance
+      - RelicDineAndDashChance
+    output_range: [0.0, 1.0]
+    expression: "clamp(SeatDineAndDashChance + FacilityDineAndDashChance + RelicDineAndDashChance, 0.0, 1.0)"
+    notes: "Additive stacking. Priority: dine-and-dash > devour when both trigger."
+    added: 2026-04-17
+    revised: ""
+
+  - name: daily_target
+    status: active
+    source: design/gdd/restaurant-system.md
+    referenced_by:
+      - design/gdd/restaurant-system.md
+    variables:
+      - BaseTarget
+      - TargetGrowth
+      - DayNumber
+    output_range: [1, 9999]
+    expression: "BaseTarget + TargetGrowth * (DayNumber - 1)"
+    notes: "Daily revenue target. Configured via TbRestaurantProgress in Luban."
+    added: 2026-04-17
+    revised: ""
+
+  - name: diner_base_gold_generation
+    status: active
+    source: design/gdd/diner-system.md
+    referenced_by:
+      - design/gdd/diner-system.md
+    variables:
+      - RawGold
+      - GoldMultiplier
+      - DisguiseMultiplier
+    output_range: [0, 9999]
+    expression: "Config-driven: RawGold from range, then ×GoldMultiplier (disguise: 50% ×2 / 50% ÷2)"
+    notes: "All values from TbDinerTemplate + TbEmotionPath. Disguise path uses binary random."
+    added: 2026-04-17
+    revised: ""
+
+  - name: gold_spent_ratio
+    status: active
+    source: design/gdd/diner-system.md
+    referenced_by:
+      - design/gdd/diner-system.md
+    variables:
+      - CumulativeSpent
+      - EffectiveDinerGold
+    output_range: [0.0, 9999.0]
+    expression: "CumulativeSpent / EffectiveDinerGold"
+    notes: "Drives emotion path lookup via TbEmotionPath thresholds."
+    added: 2026-04-17
+    revised: ""
+
+  - name: round_revenue
+    status: active
+    source: design/gdd/turn-flow-system.md
+    referenced_by:
+      - design/gdd/turn-flow-system.md
+    variables:
+      - SettlementAmount
+    output_range: [0, 9999]
+    expression: "Sum of SettlementAmount_i for all settled diners. PAY=TotalCost, DEVOUR=EffectiveDinerGold+bonus, DineAndDash=0"
+    notes: "Turn flow aggregation formula. Settlement amounts sourced from restaurant/diner systems."
+    added: 2026-04-17
+    revised: ""
+
+  - name: daily_revenue
+    status: active
+    source: design/gdd/turn-flow-system.md
+    referenced_by:
+      - design/gdd/turn-flow-system.md
+    variables:
+      - RoundRevenue
+    output_range: [0, 9999]
+    expression: "Sum of RoundRevenue_j for j=1..CompletedRounds"
+    notes: "Accumulated daily revenue. Compared against DailyTarget for early end / game over."
+    added: 2026-04-17
+    revised: ""
+
+  - name: day_result_verdict
+    status: active
+    source: design/gdd/turn-flow-system.md
+    referenced_by:
+      - design/gdd/turn-flow-system.md
+    variables:
+      - DailyRevenue
+      - DailyTarget
+      - RoundNumber
+      - MaxRounds
+    output_range: [0, 2]
+    expression: "if DailyRevenue>=DailyTarget -> TARGET_MET(2); else if roundNumber<MaxRounds -> CONTINUE(1); else -> GAME_OVER(0)"
+    notes: "Conditional verdict after each round settlement. Drives day-level flow control."
+    added: 2026-04-17
+    revised: ""
+
+  - name: early_bonus_tickets
+    status: active
+    source: design/gdd/turn-flow-system.md
+    referenced_by:
+      - design/gdd/turn-flow-system.md
+      - design/gdd/economy-system.md
+    variables:
+      - UnusedRounds
+      - TicketPerUnusedRound
+    output_range: [0, 9999]
+    expression: "UnusedRounds * TicketPerUnusedRound"
+    notes: "Bonus tickets when daily target met before all rounds used. Config via TbShopConfig."
+    added: 2026-04-17
+    revised: ""
+
+  - name: shop_display_count
+    status: active
+    source: design/gdd/turn-flow-system.md
+    referenced_by:
+      - design/gdd/turn-flow-system.md
+      - design/gdd/economy-system.md
+    variables:
+      - BaseShopDisplay
+      - ShopDisplayBonuses
+      - TotalPoolSize
+    output_range: [1, 999]
+    expression: "min(BaseShopDisplay + Sum(ShopDisplayBonuses), TotalPoolSize)"
+    notes: "Number of items shown in shop. Clamped to pool size."
+    added: 2026-04-17
+    revised: ""
+
+  - name: cycle_index
+    status: active
+    source: design/gdd/turn-flow-system.md
+    referenced_by:
+      - design/gdd/turn-flow-system.md
+    variables:
+      - DayNumber
+      - CycleLength
+    output_range: [1, 7]
+    expression: "ceil(DayNumber / CycleLength)"
+    notes: "Determines which 3-day cycle the current day belongs to. Used for Boss template lookup."
+    added: 2026-04-17
+    revised: ""
+
+  - name: day_ticket_award
+    status: active
+    source: design/gdd/economy-system.md
+    referenced_by:
+      - design/gdd/economy-system.md
+    variables:
+      - BaseDayTickets
+      - DailyRevenue
+      - RevenueToTicketRatio
+      - EarlyBonusTickets
+      - BossKillBonus
+    output_range: [0, 9999]
+    expression: "BaseDayTickets + floor(DailyRevenue × RevenueToTicketRatio) + EarlyBonusTickets + BossKillBonus"
+    notes: "Daily ticket award. Revenue converted from gold to tickets at ratio. Boss bonus per devoured Boss."
+    added: 2026-04-17
+    revised: ""
+
+  - name: interest
+    status: active
+    source: design/gdd/economy-system.md
+    referenced_by:
+      - design/gdd/economy-system.md
+    variables:
+      - TicketBalance
+      - InterestCap
+      - InterestRate
+    output_range: [0, 9999]
+    expression: "floor(min(TicketBalance, InterestCap) × InterestRate)"
+    notes: "Interest calculated after FE1 award, before shop opens. Cap prevents runaway accumulation."
+    added: 2026-04-17
+    revised: ""
+
+  - name: shop_final_price
+    status: active
+    source: design/gdd/economy-system.md
+    referenced_by:
+      - design/gdd/economy-system.md
+    variables:
+      - BasePrice
+      - ShopDiscountMod
+    output_range: [1, 9999]
+    expression: "max(1, floor(BasePrice × ShopDiscountMod))"
+    notes: "Final shop price after discount modifier. Floor 1 prevents free purchases."
+    added: 2026-04-17
+    revised: ""
+
+  - name: category_refresh_cost
+    status: active
+    source: design/gdd/economy-system.md
+    referenced_by:
+      - design/gdd/economy-system.md
+    variables:
+      - BaseRefreshCost
+      - PreviousRefreshes
+      - RefreshCostIncrement
+    output_range: [1, 9999]
+    expression: "BaseRefreshCost + PreviousRefreshes × RefreshCostIncrement"
+    notes: "Per-category refresh cost. PreviousRefreshes resets daily per category. Escalating cost is natural limiter."
+    added: 2026-04-17
+    revised: ""
 
 # Example:
 #
@@ -139,7 +413,135 @@ formulas: []
 #
 # Required fields: name, status, source, referenced_by, value, unit, added
 
-constants: []
+constants:
+  - name: max_seat_count
+    status: active
+    source: design/gdd/restaurant-system.md
+    referenced_by:
+      - design/gdd/restaurant-system.md
+    value: 8
+    unit: seats
+    added: 2026-04-17
+    revised: ""
+
+  - name: initial_seat_count
+    status: active
+    source: design/gdd/restaurant-system.md
+    referenced_by:
+      - design/gdd/restaurant-system.md
+    value: 4
+    unit: seats
+    added: 2026-04-17
+    revised: ""
+
+  - name: facility_slots
+    status: active
+    source: design/gdd/restaurant-system.md
+    referenced_by:
+      - design/gdd/restaurant-system.md
+    value: 3
+    unit: slots
+    added: 2026-04-17
+    revised: ""
+
+  - name: modifier_floor
+    status: active
+    source: design/gdd/restaurant-system.md
+    referenced_by:
+      - design/gdd/restaurant-system.md
+    value: 0
+    unit: value
+    added: 2026-04-17
+    revised: ""
+
+  - name: facility_relic_modifier_min
+    status: active
+    source: design/gdd/restaurant-system.md
+    referenced_by:
+      - design/gdd/restaurant-system.md
+    value: 0.1
+    unit: multiplier
+    notes: "Minimum modifier value for global facilities and relics. Only seat traits can be 0.0."
+    added: 2026-04-17
+    revised: ""
+
+  - name: max_traits_per_diner
+    status: active
+    source: design/gdd/diner-system.md
+    referenced_by:
+      - design/gdd/diner-system.md
+    value: 2
+    unit: traits
+    notes: "Maximum number of traits a single diner can have."
+    added: 2026-04-17
+    revised: ""
+
+  - name: disguise_multiplier
+    status: active
+    source: design/gdd/diner-system.md
+    referenced_by:
+      - design/gdd/diner-system.md
+    value: 2.0
+    unit: multiplier
+    notes: "Disguise emotion path binary random multiplier. 50% ×2.0, 50% ÷2.0."
+    added: 2026-04-17
+    revised: ""
+
+  - name: adjacent_range
+    status: active
+    source: design/gdd/diner-system.md
+    referenced_by:
+      - design/gdd/diner-system.md
+    value: 1
+    unit: seats
+    notes: "Environment aura adjacent seat range (index ±1)."
+    added: 2026-04-17
+    revised: ""
+
+  - name: max_hand_size
+    status: active
+    source: design/gdd/card-system.md
+    referenced_by:
+      - design/gdd/card-system.md
+    value: 10
+    unit: cards
+    notes: "Maximum number of cards in player hand. Hard cap — overflow triggers discard-first-then-get."
+    added: 2026-04-17
+    revised: ""
+
+  - name: base_plays_per_round
+    status: active
+    source: design/gdd/card-system.md
+    referenced_by:
+      - design/gdd/card-system.md
+      - design/gdd/turn-flow-system.md
+    value: 5
+    unit: plays
+    notes: "Base number of card plays allowed per round. Modified by restaurant global modifiers."
+    added: 2026-04-17
+    revised: ""
+
+  - name: run_length
+    status: active
+    source: design/gdd/turn-flow-system.md
+    referenced_by:
+      - design/gdd/turn-flow-system.md
+    value: 21
+    unit: days
+    notes: "Total days per run. 7 cycles of 3 days each. MVP fixed, future meta-progression may adjust."
+    added: 2026-04-17
+    revised: ""
+
+  - name: cycle_length
+    status: active
+    source: design/gdd/turn-flow-system.md
+    referenced_by:
+      - design/gdd/turn-flow-system.md
+    value: 3
+    unit: days
+    notes: "Days per cycle. 2 normal days + 1 Boss day per cycle."
+    added: 2026-04-17
+    revised: ""
 
 # Example:
 #

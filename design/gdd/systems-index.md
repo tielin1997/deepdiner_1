@@ -17,11 +17,11 @@
 
 | # | System Name | Category | Priority | Status | Design Doc | Depends On |
 |---|-------------|----------|----------|--------|------------|------------|
-| 1 | 餐厅系统 (Restaurant) | Foundation | MVP | Not Started | — | — |
-| 2 | 食客系统 (Diner) | Core Gameplay | MVP | Not Started | — | 餐厅系统 |
-| 3 | 卡牌系统 (Card) | Core Gameplay | MVP | Not Started | — | 食客系统 |
-| 4 | 回合流程系统 (Turn Flow) | Game Flow | MVP | Not Started | — | 餐厅系统, 食客系统, 卡牌系统 |
-| 5 | 经济系统 (Economy) | Economy | MVP | Not Started | — | 回合流程系统 |
+| 1 | 餐厅系统 (Restaurant) | Foundation | MVP | Designed | design/gdd/restaurant-system.md | — |
+| 2 | 食客系统 (Diner) | Core Gameplay | MVP | Designed | design/gdd/diner-system.md | 餐厅系统 |
+| 3 | 卡牌系统 (Card) | Core Gameplay | MVP | Designed | design/gdd/card-system.md | 食客系统 |
+| 4 | 回合流程系统 (Turn Flow) | Game Flow | MVP | Designed | design/gdd/turn-flow-system.md | 餐厅系统, 食客系统, 卡牌系统 |
+| 5 | 经济系统 (Economy) | Economy | MVP | Designed | design/gdd/economy-system.md | 回合流程系统 |
 | 6 | 遗物系统 (Relic) | Economy | Vertical Slice | Not Started | — | 经济系统, 卡牌系统 |
 | 7 | 事件系统 (Event) | Game Flow | Vertical Slice | Not Started | — | 回合流程系统, 食客系统 |
 | 8 | 元进度系统 (Meta-Progression) | Progression | Alpha | Not Started | — | 回合流程系统 |
@@ -126,10 +126,10 @@
 | Metric | Count |
 |--------|-------|
 | Total systems identified | 10 |
-| Design docs started | 0 |
+| Design docs started | 5 |
 | Design docs reviewed | 0 |
 | Design docs approved | 0 |
-| MVP systems designed | 0/5 |
+| MVP systems designed | 5/5 |
 | Vertical Slice systems designed | 0/2 |
 
 ---

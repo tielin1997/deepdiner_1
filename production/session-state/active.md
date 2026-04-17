@@ -1,39 +1,42 @@
 # Active Session State
 
-> **Last Updated**: 2026-04-16
+> **Last Updated**: 2026-04-17
 
 ## Current Task
-- DeepDiner 核心循环原型验证完成
+
+- 经济系统 (Economy System) GDD 设计完成
 
 ## Status
-- Systems index created: `design/gdd/systems-index.md`
-- Core loop prototype PASSED: `prototypes/core-loop/REPORT.md`
-- Recommendation: PROCEED
 
-## Progress
-- [x] Game concept exists at `design/gdd/game-concept.md`
-- [x] Systems enumeration (10 systems, merged from 30)
-- [x] Dependency mapping (no circular deps)
-- [x] Priority assignment (MVP 5 / VS 2 / Alpha 2 / Polish 1)
-- [x] Systems index written
-- [x] Core loop prototype built and validated
-- [ ] Design individual system GDDs (0/10)
+- Economy GDD: **Designed (pending review)**
+- All 8 required sections + Open Questions completed
+- Entity registry updated with 4 new formulas
+- Systems index updated: MVP systems 5/5
 
-## Key Decisions
-- Merged 30 raw systems → 10 functional systems for rapid prototyping
-- MVP = 餐厅 + 食客 + 卡牌 + 回合流程 + 经济 (5 systems for core loop)
-- Review mode: Solo
-- Prototype validated: card quality tiers (Common/Uncommon/Rare/Epic) 10-50 cost range
-- Diner gold ranges scaled up to match (Goblin 30-60, Slime 50-90, DeepSea 70-130, Orc 100-180)
-- Daily target: 150 starting, +60 per day
+## Completed This Session
 
-## Files Created This Session
-- `design/gdd/systems-index.md` — systems decomposition index
-- `production/review-mode.txt` — set to "solo"
-- `Assets/Prototypes/CoreLoop/PrototypeCoreLoop.cs` — core loop prototype script
-- `prototypes/core-loop/SETUP.md` — prototype setup instructions
-- `prototypes/core-loop/REPORT.md` — prototype result report (PROCEED)
+- [x] Section A: Overview
+- [x] Section B: Player Fantasy
+- [x] Section C: Detailed Design
+- [x] Section D: Formulas
+- [x] Section E: Edge Cases
+- [x] Section F: Dependencies
+- [x] Section G: Tuning Knobs
+- [x] Section H: Acceptance Criteria
+- [x] Optional: Open Questions
+- [x] Entity registry update
+- [x] Systems index update
+
+## Files Modified
+
+- GDD: `design/gdd/economy-system.md`
+- Systems Index: `design/gdd/systems-index.md`
+- Entity Registry: `design/registry/entities.yaml`
+- Session State: `production/session-state/active.md`
 
 ## Next Steps
-- Run `/design-system 餐厅系统` to start designing the first MVP system GDD
-- Or run `/map-systems next` to auto-pick the next undesigned system
+
+- Run `/design-review` on economy GDD
+- Run `/review-all-gdds` for MVP cross-system consistency check
+- Design Vertical Slice systems (遗物, 事件)
+- Prototype the core loop (`/prototype`)
